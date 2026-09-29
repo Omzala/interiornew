@@ -90,8 +90,8 @@ export const testimonials = [
 ];
 
 export const stats = [
-  { value: 12, suffix: '+', label: 'Years of practice' },
-  { value: 240, suffix: '+', label: 'Spaces delivered' },
-  { value: 18, suffix: '', label: 'Cities' },
+  { value: 5, suffix: '+', label: 'Years of experience' },
+  { value: 35, suffix: '+', label: 'Projects delivered' },
+  { value: 10, suffix: '+', label: 'Cities' },
   { value: 98, suffix: '%', label: 'Client referrals' },
 ];
