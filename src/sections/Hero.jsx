@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { animate, motion, useReducedMotion } from 'framer-motion';
 import RevealText from '../components/RevealText';
@@ -6,6 +6,7 @@ import Room3D from '../components/Room3D';
 import { useIntroDone } from '../lib/intro';
 import useSectionNav from '../lib/useSectionNav';
 import { ease } from '../lib/motion';
+import useMedia from '../lib/useMedia';
 import { stats } from '../data/site';
 import { moods, palettes, defaultMood, defaultPalette } from '../data/room';
 import '../styles/hero.css';
@@ -18,23 +19,14 @@ import '../styles/hero.css';
  */
 
 const WIDE_QUERY = '(min-width: 980px)';
+// Small desktops: push the room a little further right and smaller so it clears the copy.
+const ROOMY_QUERY = '(min-width: 1200px)';
 
-/** Live `matchMedia` result, read synchronously on the first client render. */
-function useMedia(query) {
-  const subscribe = useCallback(
-    (onChange) => {
-      const list = window.matchMedia(query);
-      list.addEventListener('change', onChange);
-      return () => list.removeEventListener('change', onChange);
-    },
-    [query]
-  );
-  return useSyncExternalStore(
-    subscribe,
-    () => window.matchMedia(query).matches,
-    () => true
-  );
-}
+/** Room framing per layout: [shift, zoom]. */
+const framing = (wide, roomy) => {
+  if (!wide) return [0, 1.04];
+  return roomy ? [0.2, 0.8] : [0.24, 0.76];
+};
 
 const ICON_INSIDE = 'M6 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M3 21h18M14 12h.01';
 const ICON_OVERVIEW = 'M12 3l8 4.5v9L12 21l-8-4.5v-9L12 3zM12 12l8-4.5M12 12v9M12 12L4 7.5';
@@ -96,6 +88,8 @@ export default function Hero() {
   const ready = useIntroDone();
   const go = useSectionNav();
   const wide = useMedia(WIDE_QUERY);
+  const roomy = useMedia(ROOMY_QUERY);
+  const [shift, zoom] = framing(wide, roomy);
   const [mood, setMood] = useState(defaultMood);
   const [palette, setPalette] = useState(defaultPalette);
   const [inside, setInside] = useState(false);
@@ -147,8 +141,8 @@ export default function Hero() {
             mood={mood}
             palette={palette}
             view={inside ? 'inside' : 'overview'}
-            shift={wide ? 0.2 : 0}
-            zoom={wide ? 0.86 : 1.04}
+            shift={shift}
+            zoom={zoom}
             play={ready}
           />
           {/* Darkens the copy side once the camera steps inside and the room fills the frame. */}

@@ -504,22 +504,26 @@
   }
 }
 
-/* Tablets and phones: copy, then the room, then a scrolling control row
-   and the numbers (Mobile.dc.html). ------------------------------------ */
+/* Tablets and phones: the room opens the page under the floating nav, then
+   the copy, a scrolling control row and the numbers (Mobile.dc.html). ---- */
 @media (max-width: 979px) {
   .hx {
+    display: flex;
+    flex-direction: column;
     min-height: 0;
-    background: radial-gradient(ellipse 95% 40% at 50% 54%, #3a2b1f 0%, #221a14 50%, #15120f 85%);
+    background: radial-gradient(ellipse 95% 34% at 50% 24%, #3a2b1f 0%, #221a14 50%, #15120f 85%);
   }
 
   .hx-copy-wrap {
+    width: 100%;
+    padding-top: 22px;
     padding-bottom: 0;
   }
 
   .hx-stage {
+    order: -1;
     position: relative;
     inset: auto;
-    margin-top: 12px;
   }
 
   .hx-canvas {
@@ -539,7 +543,7 @@
   .hx-hint {
     left: 50%;
     right: auto;
-    top: 16px;
+    top: calc(84px + env(safe-area-inset-top, 0px));
     transform: translateX(-50%);
     gap: 8px;
     padding: 7px 13px;
