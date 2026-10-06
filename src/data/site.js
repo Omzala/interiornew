@@ -26,26 +26,31 @@ export const services = [
     title: 'Residential Design',
     text: 'Complete home interiors, from spatial planning to the last cushion.',
     image: '/projects/auro-vivanta/img_2218.jpg',
+    alt: 'Living and dining with rounded seating, Auro Vivanta',
   },
   {
     title: 'Commercial Spaces',
     text: 'Offices, retail and showrooms designed around brand and people.',
     image: '/projects/janmahal-sayajigunj-office/img_2114.jpg',
+    alt: 'Reception with timber ceiling, Janmahal Sayajigunj Office',
   },
   {
     title: 'Hospitality',
     text: 'Hotels, cafés and restaurants that guests remember.',
     image: '/projects/krishnapark-waghodia/img_2169.jpg',
+    alt: 'Dining room with turquoise seating and woven pendants, Krishnapark Waghodia',
   },
   {
     title: 'Turnkey Execution',
     text: 'One team for design, procurement, site work and handover.',
     image: '/projects/manjalpur-office/img_2064.jpg',
+    alt: 'Open office with glazed meeting rooms, Manjalpur Office',
   },
   {
     title: 'Bespoke Furniture',
     text: 'Custom pieces crafted by our network of artisans.',
     image: '/projects/vriund-residences/img_1684.jpg',
+    alt: 'Dining corner with a statement pendant, Vriund Residences',
   },
 ];
 

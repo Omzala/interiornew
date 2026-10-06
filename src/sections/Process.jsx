@@ -1,32 +1,16 @@
-import { useCallback, useEffect, useId, useRef, useState, useSyncExternalStore } from 'react';
+import { useEffect, useId, useRef, useState } from 'react';
 import { AnimatePresence, motion, useInView, useReducedMotion } from 'framer-motion';
 import RevealText from '../components/RevealText';
 import SmartImage from '../components/SmartImage';
 import { process as steps } from '../data/site';
 import { ease, pad } from '../lib/motion';
+import useMedia from '../lib/useMedia';
 import '../styles/process.css';
 
 const PHONE_QUERY = '(max-width: 700px)';
 const AUTO_ADVANCE_MS = 4200;
 const PALETTE_PHOTO = '/projects/vriund-residences/img_1684.jpg';
 const HANDOVER_PHOTO = '/projects/hiya-horizon/img_1456.jpg';
-
-/** Live `matchMedia` result, read synchronously on the first client render. */
-function useMedia(query) {
-  const subscribe = useCallback(
-    (onChange) => {
-      const list = window.matchMedia(query);
-      list.addEventListener('change', onChange);
-      return () => list.removeEventListener('change', onChange);
-    },
-    [query],
-  );
-  return useSyncExternalStore(
-    subscribe,
-    () => window.matchMedia(query).matches,
-    () => false,
-  );
-}
 
 /*
  * The four plates of the exploded isometric stack. Each is drawn on a 330px

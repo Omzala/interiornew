@@ -1,4 +1,4 @@
-import { useCallback, useId, useState, useSyncExternalStore } from 'react';
+import { useId, useState } from 'react';
 import {
   AnimatePresence,
   motion,
@@ -11,27 +11,11 @@ import RevealText from '../components/RevealText';
 import SmartImage from '../components/SmartImage';
 import { services } from '../data/site';
 import { ease, pad } from '../lib/motion';
+import useMedia from '../lib/useMedia';
 import '../styles/services.css';
 
 const PHONE_QUERY = '(max-width: 700px)';
 const FINE_POINTER_QUERY = '(hover: hover) and (pointer: fine)';
-
-/** Live `matchMedia` result, read synchronously on the first client render. */
-function useMedia(query) {
-  const subscribe = useCallback(
-    (onChange) => {
-      const list = window.matchMedia(query);
-      list.addEventListener('change', onChange);
-      return () => list.removeEventListener('change', onChange);
-    },
-    [query],
-  );
-  return useSyncExternalStore(
-    subscribe,
-    () => window.matchMedia(query).matches,
-    () => false,
-  );
-}
 
 const clamp01 = (v) => Math.min(1, Math.max(0, v));
 const tiltSpring = { stiffness: 170, damping: 20, mass: 0.6 };

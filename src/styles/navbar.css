@@ -259,7 +259,8 @@
   }
 }
 
-/* Tablet and phone: logo + burger only (the phone dock handles booking). */
+/* Tablet and phone: links collapse into the menu; the booking pill stays
+   until the phone dock (<= 760px, see mobile-dock.css) takes over. */
 @media (max-width: 979px) {
   .nvb {
     top: calc(10px + env(safe-area-inset-top, 0px));
@@ -269,8 +270,7 @@
     backdrop-filter: blur(16px) saturate(140%);
   }
 
-  .nvb-links,
-  .nvb-cta-wrap {
+  .nvb-links {
     display: none;
   }
 
@@ -290,6 +290,12 @@
   .nvb-sub {
     margin-top: 4px;
     font-size: 8px;
+  }
+}
+
+@media (max-width: 760px) {
+  .nvb-cta-wrap {
+    display: none;
   }
 }
 
