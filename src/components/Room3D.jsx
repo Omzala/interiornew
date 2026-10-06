@@ -59,7 +59,8 @@ export default function Room3D({
 
     const fail = (err) => {
       if (disposed) return;
-      if (err) console.warn('Room3D: showing a photo instead of the 3D room.', err);
+      // No WebGL is an expected condition (old devices, disabled GPU); anything else is worth a note.
+      if (err?.code !== 'NO_WEBGL') console.warn('Room3D: showing a photo instead of the 3D room.', err);
       room?.dispose();
       room = null;
       roomRef.current = null;

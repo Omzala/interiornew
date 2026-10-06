@@ -16,7 +16,7 @@
  *   shift    -0.45..0.45  slides the room sideways in the frame (fraction of width)
  *   zoom     >0           1 = the room just fits the frame
  *
- * Throws if WebGL is unavailable. The canvas is owned by the scene until dispose();
+ * Throws (err.code === 'NO_WEBGL') if WebGL 2 is unavailable. The canvas is owned by the scene until dispose();
  * after dispose() its context is lost on purpose, so use a fresh canvas next time.
  * Rendering pauses while the canvas is off-screen or the tab is hidden, and with
  * prefers-reduced-motion the intro, sway and drifting dust are skipped and frames
@@ -73,7 +73,7 @@ import {
 const MOODS = {
   dawn: { el: 21, az: -30, sun: 0xffc6a2, sunI: 3.4, hemiS: 0xf3d9cc, hemiG: 0x5e4a3e, hemiI: 0.75, lamp: 0.0, cove: 0.0, art: 0.0, env: 0.55, dust: 0.9, shaft: 1.0, exp: 1.0, skyT: 0xe7b3a2, skyB: 0xffe3c6, hill: 0x9a7a74, glow: 0xfff0d8, sx: 0.24, sy: 0.33 },
   noon: { el: 55, az: 10, sun: 0xfff5e6, sunI: 4.2, hemiS: 0xe9eef3, hemiG: 0x8a7663, hemiI: 1.35, lamp: 0.0, cove: 0.0, art: 0.0, env: 0.85, dust: 0.45, shaft: 0.45, exp: 1.0, skyT: 0x86b3dd, skyB: 0xe2eef5, hill: 0x7d9670, glow: 0xffffff, sx: 0.62, sy: 0.9 },
-  dusk: { el: 16, az: 32, sun: 0xff9d5c, sunI: 3.8, hemiS: 0xd39a7a, hemiG: 0x3b2a22, hemiI: 0.6, lamp: 9.0, cove: 3.0, art: 4.0, env: 0.45, dust: 1.0, shaft: 1.2, exp: 1.06, skyT: 0x5d4c7c, skyB: 0xffa25e, hill: 0x3f2c3a, glow: 0xffd2a0, sx: 0.74, sy: 0.3 },
+  dusk: { el: 16, az: 32, sun: 0xff9d5c, sunI: 5.1, hemiS: 0xd39a7a, hemiG: 0x3b2a22, hemiI: 0.6, lamp: 9.0, cove: 3.0, art: 4.0, env: 0.45, dust: 1.0, shaft: 1.2, exp: 1.06, skyT: 0x5d4c7c, skyB: 0xffa25e, hill: 0x3f2c3a, glow: 0xffd2a0, sx: 0.74, sy: 0.3 },
   night: { el: 34, az: -12, sun: 0x9db4ff, sunI: 0.8, hemiS: 0x2f3a58, hemiG: 0x15100d, hemiI: 0.3, lamp: 16.0, cove: 6.0, art: 7.0, env: 0.18, dust: 0.18, shaft: 0.3, exp: 1.12, skyT: 0x070b1a, skyB: 0x1c2747, hill: 0x080a12, glow: 0xdfe7ff, sx: 0.3, sy: 0.76 },
 };
 
@@ -413,15 +413,36 @@ export function createRoomScene(canvas, options = {}) {
   const small = (canvas.clientWidth || 800) < 720 || coarse;
   const reduce = mq('(prefers-reduced-motion: reduce)');
 
-  const renderer = new WebGLRenderer({
-    canvas,
-    antialias: true,
+  /* acquire the context ourselves so a device without WebGL 2 fails quietly
+     (three would log an error) and the caller can show its photo fallback */
+  const powerPreference = coarse ? 'default' : 'high-performance';
+  const gl = canvas.getContext('webgl2', {
     alpha: true,
-    powerPreference: coarse ? 'default' : 'high-performance',
+    antialias: true,
+    depth: true,
+    stencil: false,
+    premultipliedAlpha: true,
+    preserveDrawingBuffer: false,
+    powerPreference,
   });
+  if (!gl) {
+    const err = new Error('WebGL 2 is not available');
+    err.code = 'NO_WEBGL';
+    throw err;
+  }
+  const renderer = new WebGLRenderer({ canvas, context: gl, antialias: true, alpha: true, powerPreference });
+  try {
+    return buildRoom(canvas, renderer, { ...DEFAULTS, ...options }, { coarse, small, reduce });
+  } catch (err) {
+    renderer.dispose();
+    renderer.forceContextLoss();
+    throw err;
+  }
+}
 
+function buildRoom(canvas, renderer, opts, { coarse, small, reduce }) {
   const S = {
-    opts: { ...DEFAULTS, ...options },
+    opts,
     dead: false,
     raf: 0,
     compiled: false,
@@ -451,25 +472,19 @@ export function createRoomScene(canvas, options = {}) {
     intro: [],
   };
 
-  const disposables = { textures: [], extra: [] };
   const cleanups = [];
   let resolveReady;
   const ready = new Promise((res) => {
     resolveReady = res;
   });
 
-  try {
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, coarse ? 1.75 : 2));
-    renderer.setClearColor(0x000000, 0);
-    renderer.outputColorSpace = SRGBColorSpace;
-    renderer.toneMapping = ACESFilmicToneMapping;
-    renderer.toneMappingExposure = 1;
-    renderer.shadowMap.enabled = true;
-    renderer.shadowMap.type = PCFShadowMap;
-  } catch (err) {
-    renderer.dispose();
-    throw err;
-  }
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio || 1, coarse ? 1.75 : 2));
+  renderer.setClearColor(0x000000, 0);
+  renderer.outputColorSpace = SRGBColorSpace;
+  renderer.toneMapping = ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1;
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = PCFShadowMap; // PCFSoftShadowMap is gone in r186; radius softens PCF
 
   const scene = new Scene();
   const camera = new PerspectiveCamera(30, 1, 0.1, 80);
@@ -504,7 +519,6 @@ export function createRoomScene(canvas, options = {}) {
   pmrem.dispose();
 
   const T = buildTextures(maxAniso);
-  disposables.textures = T.list;
 
   /* materials; userData.env scales the mood's reflection strength */
   const mats = [];
@@ -594,6 +608,12 @@ export function createRoomScene(canvas, options = {}) {
   mk(new BoxGeometry(3.15, 0.05, 0.016), M.cut, -1.425, 0.025, -2.492, shell, false);
   mk(new BoxGeometry(1.35, 0.05, 0.016), M.cut, 2.325, 0.025, -2.492, shell, false);
   mk(new BoxGeometry(0.016, 0.05, 5.0), M.cut, -2.992, 0.025, 0, shell, false);
+
+  /* ceiling for the "Step inside" view; faces down and is only shown while the camera
+     is below it, so the overview stays an open dollhouse */
+  const ceiling = mk(new PlaneGeometry(6.0, 5.0), M.plaster, 0, 3.2, 0, shell, false, false);
+  ceiling.rotation.x = Math.PI / 2;
+  ceiling.visible = false;
 
   const frameShape = archPath(Shape, WIN.cx, WIN.y0, WIN.w - 0.01, WIN.h - 0.005);
   frameShape.holes.push(archPath(Path, WIN.cx, WIN.y0 + 0.05, WIN.w - 0.1, WIN.h - 0.1));
@@ -816,15 +836,13 @@ export function createRoomScene(canvas, options = {}) {
   leaves.receiveShadow = true;
   crown.add(leaves);
 
-  /* invisible shadow casters (ceiling + open right wall) keep the sun to the window.
-     They live on layer 1, which only the sun's shadow camera renders. */
+  /* invisible shadow casters (ceiling + open right wall) keep the sun to the window */
   const occMat = new MeshBasicMaterial({ colorWrite: false, depthWrite: false });
   const occ = (geo, x, y, z) => {
     const m = new Mesh(geo, occMat);
     m.position.set(x, y, z);
     m.castShadow = true;
     m.receiveShadow = false;
-    m.layers.set(1);
     room.add(m);
   };
   occ(new BoxGeometry(6.4, 0.1, 5.4), -0.1, 3.3, -0.1);
@@ -845,7 +863,6 @@ export function createRoomScene(canvas, options = {}) {
   sc.near = 11;
   sc.far = 21;
   sc.updateProjectionMatrix();
-  sc.layers.enable(1);
   sun.shadow.bias = -0.0005;
   sun.shadow.normalBias = 0.02;
   sun.shadow.radius = small ? 1.25 : 1.5;
@@ -980,7 +997,6 @@ export function createRoomScene(canvas, options = {}) {
   };
 
   const step = (dt) => {
-    const DBG = window.__R3D || {}; // TEMP-DEBUG
     const t = S.time;
     const { cur, tgt, curC, tgtC } = S;
     const it = S.playing ? t - S.introStart : -1;
@@ -1008,20 +1024,20 @@ export function createRoomScene(canvas, options = {}) {
     const az = cur.az * D2R;
     const d = sunDir.set(-Math.sin(az) * Math.cos(el), -Math.sin(el), Math.cos(az) * Math.cos(el)).normalize();
     sun.position.copy(sun.target.position).addScaledVector(d, -16);
-    sun.intensity = cur.sunI * (DBG.sun ?? 1); // TEMP-DEBUG
+    sun.intensity = cur.sunI;
     sun.color.copy(curC.sun);
-    hemi.intensity = cur.hemiI * (DBG.hemi ?? 1); // TEMP-DEBUG
+    hemi.intensity = cur.hemiI;
     hemi.color.copy(curC.hemiS);
     hemi.groundColor.copy(curC.hemiG);
     const flick = reduce ? 1 : 1 + Math.sin(t * 7.3) * 0.012 + Math.sin(t * 13.1) * 0.008;
-    lampLight.intensity = cur.lamp * lightIn * flick * (DBG.lamp ?? 1); // TEMP-DEBUG
-    coveLight.intensity = cur.cove * lightIn * (DBG.cove ?? 1); // TEMP-DEBUG
-    artLight.intensity = cur.art * lightIn * (DBG.art ?? 1); // TEMP-DEBUG
+    lampLight.intensity = cur.lamp * lightIn * flick;
+    coveLight.intensity = cur.cove * lightIn;
+    artLight.intensity = cur.art * lightIn;
     M.bulb.emissiveIntensity = Math.min(4.5, cur.lamp * 0.32) * lightIn;
     M.shadeIn.emissiveIntensity = cur.lamp * 0.07 * lightIn;
     M.cove.emissiveIntensity = cur.cove * 0.9 * lightIn;
     renderer.toneMappingExposure = cur.exp;
-    for (const m of mats) m.envMapIntensity = m.userData.env * cur.env * (DBG.env ?? 1); // TEMP-DEBUG
+    for (const m of mats) m.envMapIntensity = m.userData.env * cur.env;
     M.sofa.color.copy(curC.sofa);
     M.pillow.color.copy(curC.pillow);
     M.chair.color.copy(curC.chair);
@@ -1040,12 +1056,12 @@ export function createRoomScene(canvas, options = {}) {
     /* sunbeam: slices + dust follow the live sun direction */
     const dy = Math.min(-0.05, d.y);
     const beamLen = Math.min((WIN.y0 + WIN.h) / -dy, 4.2);
-    const shaftK = cur.shaft * lightIn * (DBG.shaft ?? 1); // TEMP-DEBUG
+    const shaftK = cur.shaft * lightIn;
     shaft.forEach((m, i) => {
       const f = (i + 0.5) / shaft.length;
       const tt = f * beamLen;
       m.position.set(WIN.cx + d.x * tt, WIN.y0 + 0.05 + d.y * tt, -2.55 + d.z * tt);
-      m.material.opacity = shaftK * (1.15 / shaft.length) * Math.pow(1 - f, 1.3);
+      m.material.opacity = shaftK * (1.5 / shaft.length) * Math.pow(1 - f, 1.3);
       m.material.color.copy(curC.sun);
     });
     const td = reduce ? 9 : t;
@@ -1144,6 +1160,7 @@ export function createRoomScene(canvas, options = {}) {
     if (Math.abs(shift) > 0.001) camera.setViewOffset(S.W, S.H, -shift * S.W, 0, S.W, S.H);
     else if (camera.view && camera.view.enabled) camera.clearViewOffset();
     camera.updateProjectionMatrix();
+    ceiling.visible = v > 0.5 && camera.position.y < 3.1;
 
     renderer.render(scene, camera);
     S.frame += 1;
@@ -1352,6 +1369,3 @@ export function createRoomScene(canvas, options = {}) {
     },
   };
 }
-
-export const ROOM_MOODS = Object.keys(MOODS);
-export const ROOM_PALETTES = Object.keys(PALETTES);

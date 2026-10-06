@@ -1,0 +1,453 @@
+/* =====================================================================
+   Photo deck: project photos as a 3D card stack
+   Design source: Mobile-Project.dc.html. Classes are prefixed `pd-`.
+   Also lays out the project page intro (description + deck), `pd-intro-`.
+   ===================================================================== */
+
+.pd {
+  /* Card size: set --pd-w on a parent to override (default: phone size). */
+  --pd-card-w: var(--pd-w, min(300px, calc(100vw - 72px)));
+  --pd-card-h: calc(var(--pd-card-w) * 1.2533);
+  --pd-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  position: relative;
+  width: 100%;
+  color: var(--ink);
+}
+
+.pd-visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* Stage ---------------------------------------------------------------- */
+.pd-stage {
+  position: relative;
+  height: calc(var(--pd-card-h) + 26px);
+  perspective: 1200px;
+  touch-action: pan-y;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+.pd-glow {
+  position: absolute;
+  left: -40px;
+  right: -40px;
+  top: -30px;
+  bottom: -40px;
+  background: radial-gradient(ellipse 60% 55% at 50% 52%, #e3d8c8 0%, rgba(244, 239, 232, 0) 75%);
+  pointer-events: none;
+}
+
+.pd-card {
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  width: var(--pd-card-w);
+  height: var(--pd-card-h);
+  margin-left: calc(var(--pd-card-w) / -2);
+  padding: 0;
+  border: 0;
+  border-radius: 26px;
+  overflow: hidden;
+  background: var(--sand);
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transform-origin: 50% 60%;
+  will-change: transform;
+  /* Clip children to the radius while transformed (Safari). */
+  isolation: isolate;
+  transition:
+    transform 0.75s var(--pd-ease),
+    opacity 0.5s ease,
+    box-shadow 0.5s ease;
+}
+
+.pd-card .smart-img {
+  pointer-events: none;
+  background: var(--sand);
+}
+
+/* Slots: front flat, the next three pushed back and turned, the previous
+   front thrown off to the left, the rest waiting invisibly at the back. */
+.pd-card[data-slot='front'] {
+  transform: translate3d(var(--pd-dx, 0px), 0px, 0px) rotate(var(--pd-rot, 0deg)) scale(1);
+  opacity: 1;
+  box-shadow: 0 40px 70px -30px rgba(28, 25, 21, 0.6);
+}
+
+.pd-card[data-slot='1'] {
+  transform: translate3d(16px, 14px, -70px) rotate(4deg) scale(0.95);
+  opacity: 1;
+  box-shadow: 0 24px 40px -24px rgba(28, 25, 21, 0.45);
+}
+
+.pd-card[data-slot='2'] {
+  transform: translate3d(-14px, 26px, -140px) rotate(-3.5deg) scale(0.9);
+  opacity: 0.9;
+  box-shadow: 0 20px 30px -24px rgba(28, 25, 21, 0.4);
+}
+
+.pd-card[data-slot='3'] {
+  transform: translate3d(6px, 38px, -210px) rotate(2deg) scale(0.86);
+  opacity: 0.6;
+  box-shadow: 0 20px 30px -24px rgba(28, 25, 21, 0);
+}
+
+.pd-card[data-slot='queued'] {
+  transform: translate3d(0px, 48px, -280px) rotate(0deg) scale(0.82);
+  opacity: 0;
+  box-shadow: 0 20px 30px -24px rgba(28, 25, 21, 0);
+}
+
+.pd-card[data-slot='gone'] {
+  transform: translate3d(-430px, -30px, 40px) rotate(-26deg) scale(0.96);
+  opacity: 0;
+  box-shadow: 0 20px 30px -24px rgba(28, 25, 21, 0);
+}
+
+/* Going backwards the leaving card slips away behind the stack. */
+.pd.is-back .pd-card[data-slot='gone'] {
+  transform: translate3d(-120px, 40px, -260px) rotate(-10deg) scale(0.8);
+}
+
+.pd-card:not([data-slot='front']) {
+  pointer-events: none;
+}
+
+.pd-stage.is-dragging .pd-card[data-slot='front'] {
+  transition: none;
+  cursor: grabbing;
+}
+
+/* Hidden while the lightbox shows this photo (visibility: no fade). */
+.pd-card.is-lifted {
+  visibility: hidden;
+}
+
+/* Before the deck scrolls into view the cards wait in a pile. */
+.pd:not(.is-in) .pd-card {
+  transform: translate3d(0px, 60px, -260px) rotate(0deg) scale(0.86);
+  opacity: 0;
+}
+
+.pd-card:focus-visible {
+  outline: 2px solid #8a6a3c;
+  outline-offset: 4px;
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pd-stage:not(.is-dragging) .pd-card[data-slot='front']:hover {
+    transform: translate3d(0px, -6px, 0px) rotate(-0.6deg) scale(1.01);
+    box-shadow: 0 50px 80px -34px rgba(28, 25, 21, 0.65);
+  }
+}
+
+/* Caption pill */
+.pd-cap {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 16px;
+  background: rgba(244, 239, 232, 0.86);
+  -webkit-backdrop-filter: blur(10px);
+  backdrop-filter: blur(10px);
+  text-align: left;
+  opacity: 0;
+  transition: opacity 0.4s ease;
+  pointer-events: none;
+}
+
+.pd-card[data-slot='front'] .pd-cap {
+  opacity: 1;
+}
+
+.pd-tag {
+  flex: 0 0 auto;
+  padding: 4px 9px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--ivory);
+  font-family: var(--sans);
+  font-size: 10.5px;
+  font-weight: 400;
+  line-height: 1.3;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+}
+
+.pd-cap-text {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--sans);
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 1.35;
+  color: var(--ink);
+}
+
+/* Counter + arrows ------------------------------------------------------- */
+.pd-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.pd-count {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 0 4px;
+  font-size: 13px;
+  letter-spacing: 0.08em;
+  color: #6b6156;
+  font-variant-numeric: tabular-nums;
+}
+
+.pd-count-now {
+  font-family: var(--serif);
+  font-size: 30px;
+  line-height: 1;
+  letter-spacing: 0;
+  color: var(--ink);
+}
+
+.pd-count-tag {
+  margin-left: 12px;
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: #7a5d34;
+}
+
+.pd-nav {
+  display: flex;
+  gap: 8px;
+}
+
+.pd-btn {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  padding: 0;
+  border-radius: 50%;
+  border: 1px solid rgba(28, 25, 21, 0.22);
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease, transform 0.3s ease;
+}
+
+.pd-btn:hover {
+  border-color: var(--ink);
+}
+
+.pd-btn.is-solid {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--ivory);
+}
+
+.pd-btn.is-solid:hover {
+  background: #3a332b;
+}
+
+.pd-btn:active {
+  transform: scale(0.94);
+}
+
+.pd-btn:focus-visible,
+.pd-thumb:focus-visible {
+  outline: 2px solid #8a6a3c;
+  outline-offset: 3px;
+}
+
+/* Thumbnails ------------------------------------------------------------- */
+.pd-thumbs {
+  display: flex;
+  gap: 8px;
+  margin: 10px -4px 0;
+  padding: 4px;
+}
+
+.pd-thumbs.is-scroll {
+  overflow-x: auto;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  scroll-padding-inline: 24px;
+  -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 28px), transparent);
+  mask-image: linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 28px), transparent);
+}
+
+.pd-thumbs.is-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+.pd-thumb {
+  flex: 1 1 0;
+  min-width: 44px;
+  max-width: 96px;
+  height: 50px;
+  padding: 0;
+  border: 0;
+  border-radius: 10px;
+  overflow: hidden;
+  background: var(--sand);
+  cursor: pointer;
+  opacity: 0.55;
+  transition: opacity 0.3s ease, box-shadow 0.3s ease;
+}
+
+.pd-thumbs.is-scroll .pd-thumb {
+  flex: 0 0 56px;
+}
+
+.pd-thumb:hover {
+  opacity: 0.85;
+}
+
+.pd-thumb[aria-pressed='true'] {
+  opacity: 1;
+  box-shadow: 0 0 0 2px var(--ivory), 0 0 0 3.5px var(--ink);
+}
+
+.pd-thumb .smart-img {
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pd-card,
+  .pd-cap,
+  .pd-btn,
+  .pd-thumb {
+    transition: opacity 0.2s ease;
+  }
+
+  .pd:not(.is-in) .pd-card {
+    opacity: 1;
+  }
+
+  .pd-card[data-slot='gone'],
+  .pd.is-back .pd-card[data-slot='gone'] {
+    transform: translate3d(0px, 48px, -280px) rotate(0deg) scale(0.82);
+  }
+}
+
+/* =====================================================================
+   Project page intro: description beside the deck (desktop),
+   deck above the description (phones).
+   ===================================================================== */
+.pd-intro-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) clamp(360px, 30vw, 420px);
+  gap: clamp(48px, 7vw, 128px);
+  align-items: center;
+}
+
+.pd-intro-copy {
+  min-width: 0;
+}
+
+.pd-intro-desc {
+  max-width: 760px;
+  font-family: var(--serif);
+  font-size: clamp(28px, 2.7vw, 44px);
+  font-weight: 400;
+  line-height: 1.22;
+  color: var(--ink);
+}
+
+.pd-intro-cta {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 54px;
+  margin-top: clamp(28px, 3.4vw, 44px);
+  padding: 0 28px;
+  border-radius: 999px;
+  background: var(--ink);
+  color: var(--ivory);
+  font-size: 15px;
+  font-weight: 400;
+  transition: background-color 0.3s ease;
+}
+
+.pd-intro-cta svg {
+  transition: transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.pd-intro-cta:hover {
+  background: #3a332b;
+}
+
+.pd-intro-cta:hover svg {
+  transform: translateX(4px);
+}
+
+.pd-intro-cta:focus-visible {
+  outline: 2px solid #8a6a3c;
+  outline-offset: 3px;
+}
+
+.pd-intro-deck {
+  min-width: 0;
+  --pd-w: 320px;
+}
+
+@media (max-width: 899px) {
+  .pd-intro-grid {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 0;
+  }
+
+  /* Let the label, deck and copy order themselves in one column. */
+  .pd-intro-copy {
+    display: contents;
+  }
+
+  .pd-intro-grid .section-label {
+    order: 0;
+    margin-bottom: 8px;
+  }
+
+  .pd-intro-deck {
+    order: 1;
+    width: 100%;
+    max-width: 420px;
+    justify-self: center;
+    --pd-w: min(300px, calc(100vw - 72px));
+  }
+
+  .pd-intro-desc {
+    order: 2;
+    margin-top: 28px;
+    font-size: clamp(24px, 6.6vw, 32px);
+  }
+
+  .pd-intro-cta {
+    order: 3;
+    justify-self: stretch;
+    margin-top: 22px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pd-intro-cta,
+  .pd-intro-cta svg {
+    transition: none;
+  }
+}

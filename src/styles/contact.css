@@ -1,0 +1,391 @@
+/* =====================================================================
+   Contact: "Begin your space" (home page, section#contact)
+   Design source: Main.dc.html "contact" section (dark espresso, arch
+   outlines, details list + glass enquiry card). Classes are prefixed
+   `ct-` so legacy index.css rules (.contact-*, .chip, .field …) can't
+   leak in.
+   ===================================================================== */
+
+.ct {
+  --ct-accent: #c8a678;
+  --ct-accent-hover: #e6cda4;
+  --ct-text: #f4efe8;
+  --ct-soft: #d3c9ba;
+  --ct-dim: #b9ad9c;
+  --ct-rule: rgba(244, 239, 232, 0.12);
+  --ct-input-rule: rgba(244, 239, 232, 0.28);
+
+  position: relative;
+  background: var(--espresso);
+  color: var(--ct-text);
+  padding: clamp(80px, 10vw, 140px) 0;
+  overflow: hidden;
+  overflow: clip;
+}
+
+/* ---- Decorative concentric arches --------------------------------- */
+.ct-arch {
+  position: absolute;
+  display: block;
+  border: 1px solid rgba(200, 166, 120, 0.16);
+  border-radius: 999px 999px 0 0;
+  pointer-events: none;
+}
+
+.ct-arch-outer {
+  right: -8%;
+  top: 6%;
+  width: min(640px, 70vw);
+  height: 980px;
+}
+
+.ct-arch-inner {
+  right: -4%;
+  top: 12%;
+  width: min(560px, 62vw);
+  height: 900px;
+  border-color: rgba(200, 166, 120, 0.1);
+}
+
+/* ---- Layout -------------------------------------------------------- */
+.ct-inner {
+  position: relative;
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 4vw, 48px);
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-start;
+  gap: 48px 72px;
+}
+
+.ct-copy {
+  flex: 1 1 440px;
+  min-width: 0;
+}
+
+/* ---- Heading ------------------------------------------------------- */
+.ct .section-label {
+  margin: 0;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  color: var(--ct-accent);
+  gap: 0.6em;
+}
+
+.ct .section-label span {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}
+
+.ct .ct-title {
+  margin-top: 18px;
+  font-size: clamp(50px, 6.2vw, 96px);
+  line-height: 0.94;
+  letter-spacing: -0.01em;
+}
+
+.ct .ct-title .is-italic {
+  color: var(--ct-accent);
+}
+
+.ct-intro {
+  margin-top: 24px;
+  max-width: 440px;
+  font-size: 17px;
+  line-height: 1.7;
+  color: var(--ct-soft);
+}
+
+/* ---- Details list -------------------------------------------------- */
+.ct-details {
+  margin: 40px 0 0;
+}
+
+.ct-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 4px 24px;
+  padding: 11px 0;
+  border-top: 1px solid var(--ct-rule);
+}
+
+.ct-row:last-child {
+  border-bottom: 1px solid var(--ct-rule);
+}
+
+.ct-row dt {
+  font-size: 11px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--ct-dim);
+}
+
+.ct-row dd {
+  margin: 0;
+  min-width: 0;
+}
+
+.ct-row a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  max-width: 100%;
+  overflow-wrap: anywhere;
+  color: var(--ct-text);
+  font-size: 19px;
+  line-height: 1.3;
+  transition: color 0.3s ease;
+}
+
+.ct-row a:hover {
+  color: var(--ct-accent-hover);
+}
+
+.ct-phones {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+}
+
+.ct-owner {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 24px;
+  line-height: 44px;
+}
+
+/* ---- Glass enquiry card ------------------------------------------- */
+.ct-form {
+  flex: 1 1 520px;
+  min-width: 0;
+  padding: clamp(24px, 3.4vw, 44px);
+  border-radius: 28px;
+  background: rgba(244, 239, 232, 0.04);
+  border: 1px solid var(--ct-rule);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  box-shadow: 0 40px 80px -40px rgba(0, 0, 0, 0.7);
+}
+
+.ct-form-label {
+  font-size: 11px;
+  letter-spacing: 0.26em;
+  text-transform: uppercase;
+  color: var(--ct-accent);
+}
+
+.ct-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.ct-chip {
+  position: relative;
+  isolation: isolate;
+  min-height: 44px;
+  padding: 0 18px;
+  border-radius: 999px;
+  border: 1px solid var(--ct-input-rule);
+  background: transparent;
+  color: var(--ct-text);
+  font-size: 14px;
+  letter-spacing: 0.02em;
+  transition: color 0.3s ease, border-color 0.3s ease;
+}
+
+.ct-chip:hover {
+  border-color: rgba(244, 239, 232, 0.6);
+}
+
+.ct-chip.is-on {
+  color: var(--espresso);
+  border-color: var(--ct-text);
+}
+
+.ct-chip-fill {
+  position: absolute;
+  inset: -1px;
+  z-index: -1;
+  border-radius: inherit;
+  background: var(--ct-text);
+}
+
+.ct-chip-text {
+  position: relative;
+}
+
+/* ---- Underline fields --------------------------------------------- */
+.ct-field-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 22px 24px;
+  margin-top: 26px;
+}
+
+.ct-field {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  margin-top: 22px;
+}
+
+.ct-field-row .ct-field {
+  flex: 1 1 200px;
+  margin-top: 0;
+}
+
+.ct-field label {
+  font-size: 12px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--ct-dim);
+  transition: color 0.3s ease;
+}
+
+.ct-field:focus-within label {
+  color: var(--ct-accent);
+}
+
+.ct-field input,
+.ct-field textarea {
+  width: 100%;
+  min-height: 50px;
+  padding: 10px 0;
+  border: 0;
+  border-bottom: 1px solid var(--ct-input-rule);
+  border-radius: 0;
+  background: transparent;
+  color: var(--ct-text);
+  font: inherit;
+  font-size: 18px;
+  line-height: 1.4;
+  outline: none;
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.ct-field textarea {
+  padding: 12px 0;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+.ct-field input::placeholder,
+.ct-field textarea::placeholder {
+  color: rgba(244, 239, 232, 0.46);
+  opacity: 1;
+}
+
+/* Focus: the rule turns bronze and thickens to 2px (visible indicator). */
+.ct-field input:focus,
+.ct-field textarea:focus {
+  border-bottom-color: var(--ct-accent);
+  box-shadow: 0 1px 0 var(--ct-accent);
+}
+
+.ct-field input:-webkit-autofill {
+  -webkit-text-fill-color: var(--ct-text);
+  caret-color: var(--ct-text);
+  -webkit-box-shadow: inset 0 0 0 1000px #1d1915;
+  box-shadow: inset 0 0 0 1000px #1d1915;
+}
+
+.ct-field input:-webkit-autofill:focus {
+  -webkit-box-shadow: inset 0 0 0 1000px #1d1915, 0 1px 0 var(--ct-accent);
+  box-shadow: inset 0 0 0 1000px #1d1915, 0 1px 0 var(--ct-accent);
+}
+
+/* ---- Submit + helper note ------------------------------------------ */
+.ct-foot {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px 22px;
+  margin-top: 32px;
+}
+
+.ct-submit {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  min-height: 56px;
+  padding: 0 26px;
+  border-radius: 999px;
+  background: var(--ct-text);
+  color: var(--espresso);
+  font-size: 15px;
+  font-weight: 500;
+  letter-spacing: 0.01em;
+  transition: background-color 0.3s ease, transform 0.3s ease;
+}
+
+.ct-submit:hover {
+  background: var(--ct-accent-hover);
+}
+
+.ct-submit:active {
+  transform: scale(0.98);
+}
+
+.ct-note {
+  flex: 1 1 200px;
+  min-width: 0;
+  font-size: 13px;
+  line-height: 1.5;
+  color: var(--ct-dim);
+}
+
+/* ---- Focus ----------------------------------------------------------- */
+.ct a:focus-visible,
+.ct button:focus-visible {
+  outline: 2px solid var(--ct-accent);
+  outline-offset: 3px;
+}
+
+/* ---- Phones ---------------------------------------------------------- */
+@media (max-width: 560px) {
+  /* Let the arch legs fade out before they cross the details list. */
+  .ct-arch {
+    -webkit-mask-image: linear-gradient(to bottom, #000 14%, transparent 44%);
+    mask-image: linear-gradient(to bottom, #000 14%, transparent 44%);
+  }
+
+  .ct-intro {
+    font-size: 15.5px;
+    line-height: 1.65;
+  }
+
+  .ct-details {
+    margin-top: 32px;
+  }
+
+  .ct-row a {
+    font-size: 18px;
+  }
+
+  .ct-submit {
+    width: 100%;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ct-chip,
+  .ct-submit,
+  .ct-row a,
+  .ct-field label,
+  .ct-field input,
+  .ct-field textarea {
+    transition: none;
+  }
+
+  .ct-submit:active {
+    transform: none;
+  }
+}

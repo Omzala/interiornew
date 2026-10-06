@@ -8,9 +8,11 @@ import Loader from './components/Loader';
 import Cursor from './components/Cursor';
 import Navbar from './components/Navbar';
 import Footer from './components/Footer';
+import MobileDock from './components/MobileDock';
 import Home from './pages/Home';
 import Projects from './pages/Projects';
 import ProjectGallery from './pages/ProjectGallery';
+import Consultation from './pages/Consultation';
 
 function AnimatedRoutes() {
   const location = useLocation();
@@ -23,6 +25,7 @@ function AnimatedRoutes() {
         <Route path="/projects" element={<Navigate to="/projects/residential" replace />} />
         <Route path="/projects/:category" element={<Projects />} />
         <Route path="/projects/:category/:slug" element={<ProjectGallery />} />
+        <Route path="/consultation" element={<Consultation />} />
         <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
     </AnimatePresence>
@@ -46,6 +49,7 @@ export default function App() {
               <AnimatedRoutes />
             </main>
             <Footer />
+            <MobileDock />
           </IntroContext.Provider>
         </SmoothScroll>
       </BrowserRouter>

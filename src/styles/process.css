@@ -365,7 +365,11 @@
   .pc-stage {
     order: -1;
     flex: none;
-    height: 540px;
+    height: 500px;
+  }
+
+  .pc-stack {
+    top: 64%;
   }
 
   .pc-steps {

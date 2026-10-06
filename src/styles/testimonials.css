@@ -1,0 +1,377 @@
+/* =====================================================================
+   Testimonials: 3D card deck (home page, "Kind words")
+   Design source: Main.dc.html testimonials section; phones follow
+   Mobile.dc.html (shallower stack, counter + arrows, no dots).
+   Classes are prefixed `tm-` so legacy index.css rules (.quote …)
+   can't leak in.
+   ===================================================================== */
+
+.tm {
+  --tm-accent: #8a6a3c;
+  --tm-label: #7a5d34;
+  --tm-dim: #6b6156;
+  --tm-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+  /* One step back in the stack: lift and push away. */
+  --tm-dy: -30px;
+  --tm-dz: -90px;
+
+  position: relative;
+  background: var(--ivory-2);
+  color: var(--ink);
+  padding: clamp(80px, 10vw, 140px) 0;
+  overflow: hidden;
+  overflow: clip;
+}
+
+.tm-inner {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 4vw, 48px);
+}
+
+/* ---- Heading ------------------------------------------------------- */
+.tm-head {
+  text-align: center;
+}
+
+.tm .section-label {
+  justify-content: center;
+  margin-bottom: 18px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  color: var(--tm-label);
+  gap: 0.6em;
+}
+
+.tm .section-label span {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}
+
+.tm .tm-title {
+  font-size: clamp(40px, 5vw, 76px);
+  line-height: 1;
+  letter-spacing: -0.01em;
+}
+
+.tm .tm-title .is-italic {
+  color: var(--tm-accent);
+}
+
+/* ---- Deck ---------------------------------------------------------- */
+.tm-deck {
+  position: relative;
+  display: grid;
+  max-width: 920px;
+  min-height: 430px;
+  margin: 96px auto 0;
+  perspective: 1400px;
+  touch-action: pan-y;
+}
+
+/*
+ * Cards sit in one grid cell (the deck grows with the longest quote).
+ * Back cards are tinted like the design's 0.75 / 0.45 opacity over the
+ * section, but stay opaque so the outgoing quote never ghosts through the
+ * incoming one; only their content fades. The z-index swap waits a beat so
+ * a card coming forward from the back passes behind the old front card first.
+ */
+.tm-card {
+  --d: 0;
+  grid-area: 1 / 1;
+  display: flex;
+  min-width: 0;
+  transform-origin: 50% 0%;
+  transform: translate3d(0, calc(var(--tm-dy) * var(--d)), calc(var(--tm-dz) * var(--d)))
+    rotateX(calc(5deg * var(--d)));
+  transition:
+    transform 0.85s var(--tm-ease),
+    opacity 0.6s ease,
+    visibility 0.6s,
+    z-index 0s linear 0.24s;
+}
+
+.tm-card[data-depth='1'] {
+  --d: 1;
+  --tm-face: #f2ece4;
+}
+
+.tm-card[data-depth='2'] {
+  --d: 2;
+  --tm-face: #efe9e0;
+}
+
+.tm-card[data-depth='off'] {
+  --d: 3;
+  opacity: 0;
+  visibility: hidden;
+}
+
+.tm-card:not([data-depth='0']) {
+  pointer-events: none;
+}
+
+.tm-face {
+  flex: 1;
+  min-width: 0;
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 20px;
+  padding: clamp(26px, 4vw, 56px);
+  border-radius: 28px;
+  background: var(--tm-face, var(--ivory));
+  box-shadow: 0 40px 80px -40px rgba(28, 25, 21, 0.5);
+  transition: background-color 0.6s ease;
+}
+
+.tm-face > * {
+  transition: opacity 0.55s ease 0.2s;
+}
+
+.tm-card:not([data-depth='0']) .tm-face > * {
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.tm-mark {
+  display: block;
+  flex: none;
+}
+
+.tm-quote p {
+  font-family: var(--serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: clamp(25px, 3vw, 40px);
+  line-height: 1.22;
+  color: var(--ink);
+}
+
+.tm-cap {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding-top: 18px;
+  border-top: 1px solid rgba(28, 25, 21, 0.12);
+}
+
+.tm-author {
+  display: block;
+  font-size: 15px;
+  font-weight: 500;
+  line-height: 1.5;
+}
+
+.tm-role {
+  display: block;
+  margin-top: 2px;
+  font-size: 13px;
+  letter-spacing: 0.06em;
+  line-height: 1.5;
+  color: var(--tm-dim);
+}
+
+.tm-idx,
+.tm-count {
+  font-size: 13px;
+  color: var(--tm-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---- Controls ------------------------------------------------------ */
+.tm-controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-top: 36px;
+}
+
+.tm-count {
+  display: none;
+}
+
+.tm-buttons {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.tm-btn {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  border: 1px solid rgba(28, 25, 21, 0.25);
+  background: transparent;
+  color: var(--ink);
+  display: grid;
+  place-items: center;
+  transition:
+    background-color 0.3s ease,
+    border-color 0.3s ease,
+    color 0.3s ease,
+    transform 0.3s var(--tm-ease);
+}
+
+.tm-btn-solid {
+  border-color: var(--ink);
+  background: var(--ink);
+  color: var(--ivory);
+}
+
+.tm-btn:active {
+  transform: scale(0.94);
+}
+
+@media (hover: hover) {
+  .tm-btn:hover {
+    border-color: var(--ink);
+  }
+
+  .tm-btn-solid:hover {
+    background: var(--espresso-2);
+  }
+}
+
+.tm-dot {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  padding: 0;
+}
+
+.tm-dot span {
+  display: block;
+  width: 8px;
+  height: 8px;
+  border-radius: 999px;
+  background: rgba(28, 25, 21, 0.4);
+  transition:
+    width 0.4s ease,
+    background-color 0.4s ease;
+}
+
+.tm-dot[aria-pressed='true'] span {
+  width: 28px;
+  background: var(--ink);
+}
+
+.tm-btn:focus-visible,
+.tm-dot:focus-visible {
+  outline: 2px solid var(--bronze);
+  outline-offset: 3px;
+}
+
+.tm-dot:focus-visible {
+  border-radius: 999px;
+  outline-offset: -4px;
+}
+
+/* ---- Phones (Mobile.dc.html) --------------------------------------- */
+@media (max-width: 600px) {
+  .tm {
+    --tm-dy: -24px;
+    --tm-dz: -70px;
+    padding: 64px 0;
+  }
+
+  .tm-head {
+    text-align: left;
+  }
+
+  .tm .section-label {
+    justify-content: flex-start;
+    margin-bottom: 14px;
+    font-size: 11px;
+  }
+
+  .tm .tm-title {
+    font-size: 40px;
+  }
+
+  .tm-deck {
+    min-height: 330px;
+    margin-top: 64px;
+    perspective: 1000px;
+  }
+
+  .tm-face {
+    gap: 18px;
+    padding: 26px 24px;
+    border-radius: 24px;
+    box-shadow: 0 30px 60px -30px rgba(28, 25, 21, 0.5);
+  }
+
+  .tm-mark {
+    width: 34px;
+    height: 27px;
+  }
+
+  .tm-quote p {
+    font-size: 25px;
+  }
+
+  .tm-cap {
+    padding-top: 14px;
+  }
+
+  .tm-author {
+    font-size: 14px;
+  }
+
+  .tm-role {
+    margin-top: 0;
+    font-size: 12.5px;
+    letter-spacing: 0;
+  }
+
+  /* The counter moves under the deck; keep the in-card one for screen readers. */
+  .tm-idx {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  .tm-controls {
+    justify-content: space-between;
+    margin-top: 22px;
+  }
+
+  .tm-count {
+    display: block;
+  }
+
+  .tm-dot {
+    display: none;
+  }
+
+  .tm-btn {
+    width: 50px;
+    height: 50px;
+  }
+
+  .tm-btn-solid {
+    border: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .tm-card,
+  .tm-face,
+  .tm-face > *,
+  .tm-card:not([data-depth='0']) .tm-face > *,
+  .tm-btn,
+  .tm-dot span {
+    transition: none;
+  }
+}
