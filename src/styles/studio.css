@@ -1,0 +1,316 @@
+/* =====================================================================
+   Studio: statement + 3D layered collage (home page, section#studio)
+   Design source: Main.dc.html "studio" section. Classes are prefixed
+   `sd-` so legacy index.css rules (.studio, .stats …) can't leak in.
+   ===================================================================== */
+
+.sd {
+  --sd-accent: #8a6a3c;
+  --sd-label: #7a5d34;
+  --sd-dim: #6b6156;
+  --sd-ease: cubic-bezier(0.2, 0.8, 0.2, 1);
+
+  position: relative;
+  background: var(--ivory);
+  color: var(--ink);
+  padding: clamp(80px, 10vw, 140px) 0;
+  /* The collage's front layers project slightly past their box. */
+  overflow: hidden;
+  overflow: clip;
+}
+
+.sd-inner {
+  max-width: 1360px;
+  margin: 0 auto;
+  padding: 0 clamp(20px, 4vw, 48px);
+  display: grid;
+  grid-template-columns: minmax(0, 1.14fr) minmax(0, 1fr);
+  align-items: center;
+  gap: 48px clamp(40px, 5vw, 72px);
+}
+
+.sd-copy {
+  min-width: 0;
+}
+
+/* ---- Label + statement --------------------------------------------- */
+.sd .section-label {
+  margin-bottom: 22px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  color: var(--sd-label);
+  gap: 0.6em;
+}
+
+.sd .section-label span {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}
+
+.sd-statement {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: clamp(30px, 3.1vw, 46px);
+  line-height: 1.22;
+  letter-spacing: -0.005em;
+  color: var(--ink);
+}
+
+.sd-word {
+  display: inline;
+}
+
+.sd-statement em {
+  font-style: italic;
+  color: var(--sd-accent);
+}
+
+/* ---- Paragraphs ---------------------------------------------------- */
+.sd-paras {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 24px 32px;
+  margin-top: 34px;
+}
+
+.sd-paras p {
+  flex: 1 1 240px;
+  min-width: 0;
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--ink-soft);
+}
+
+/* ---- Signature ----------------------------------------------------- */
+.sd-sign {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+  margin-top: 40px;
+}
+
+.sd-sign-mark {
+  flex: none;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  border: 1px solid rgba(28, 25, 21, 0.22);
+  display: grid;
+  place-items: center;
+  color: var(--sd-accent);
+}
+
+.sd-sign-name {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 32px;
+  line-height: 1;
+}
+
+.sd-sign-role {
+  margin-top: 6px;
+  font-size: 12px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  color: var(--sd-dim);
+}
+
+/* ---- 3D collage ---------------------------------------------------- */
+.sd-collage {
+  position: relative;
+  min-width: 0;
+  height: clamp(480px, 46vw, 660px);
+  perspective: 1400px;
+}
+
+.sd-stage {
+  position: absolute;
+  inset: 0;
+  transform-style: preserve-3d;
+  will-change: transform;
+}
+
+.sd-outline {
+  position: absolute;
+  left: 20%;
+  top: 1%;
+  width: 64%;
+  height: 84%;
+  border: 1px solid var(--bronze);
+  border-radius: 999px 999px 0 0;
+}
+
+.sd-arch {
+  position: absolute;
+  left: 10%;
+  top: 7%;
+  width: 64%;
+  height: 84%;
+  border-radius: 999px 999px 10px 10px;
+  overflow: hidden;
+  box-shadow: 0 50px 90px -40px rgba(28, 25, 21, 0.65);
+  background: var(--ivory-2);
+}
+
+.sd-frame {
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 36%;
+  aspect-ratio: 4 / 5;
+  border-radius: 12px;
+  overflow: hidden;
+  border: 6px solid var(--ivory);
+  background: var(--ivory-2);
+  box-shadow: 0 40px 70px -30px rgba(28, 25, 21, 0.7);
+}
+
+.sd-arch .smart-img,
+.sd-frame .smart-img {
+  position: absolute;
+  inset: 0;
+}
+
+/* Crop the ceiling fan off the top of the living-room photo. */
+.sd-arch .smart-img img {
+  transform: scale(1.1);
+  transform-origin: 50% 100%;
+}
+
+.sd-chip {
+  position: absolute;
+  right: 0;
+  top: 46%;
+  padding: 16px 18px;
+  border-radius: 16px;
+  background: var(--ivory);
+  box-shadow: 0 30px 60px -28px rgba(28, 25, 21, 0.55);
+}
+
+.sd-chip-label {
+  font-size: 10px;
+  letter-spacing: 0.24em;
+  text-transform: uppercase;
+  line-height: 1.4;
+  color: var(--sd-dim);
+}
+
+.sd-chip-swatches {
+  display: flex;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.sd-chip-swatches span {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+}
+
+.sd-chip-swatches span:first-child {
+  box-shadow: inset 0 0 0 1px rgba(28, 25, 21, 0.12);
+}
+
+.sd-badge {
+  position: absolute;
+  right: 6%;
+  top: 2%;
+  width: 124px;
+  height: 124px;
+}
+
+.sd-badge svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  animation: sd-spin 24s linear infinite;
+}
+
+@keyframes sd-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* ---- Tablet / phone: collage below the text ------------------------ */
+@media (max-width: 899px) {
+  .sd-inner {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 56px;
+  }
+
+  .sd-collage {
+    width: 100%;
+    max-width: 560px;
+    margin: 0 auto;
+    height: clamp(420px, 70vw, 560px);
+  }
+}
+
+@media (max-width: 600px) {
+  .sd .section-label {
+    margin-bottom: 14px;
+    font-size: 11px;
+  }
+
+  .sd-statement {
+    font-size: clamp(28px, 7.8vw, 32px);
+  }
+
+  .sd-paras {
+    margin-top: 26px;
+    gap: 16px;
+  }
+
+  .sd-paras p {
+    font-size: 15.5px;
+    line-height: 1.7;
+  }
+
+  .sd-sign {
+    margin-top: 32px;
+  }
+
+  .sd-sign-name {
+    font-size: 28px;
+  }
+
+  .sd-collage {
+    height: 420px;
+    perspective: 1100px;
+  }
+
+  /* Pull the layers in so the front-most ones stay inside the gutter. */
+  .sd-stage {
+    inset: 0 14px;
+  }
+
+  .sd-frame {
+    width: 40%;
+    border-width: 5px;
+  }
+
+  .sd-chip {
+    padding: 12px 14px;
+    border-radius: 14px;
+  }
+
+  .sd-chip-swatches span {
+    width: 22px;
+    height: 22px;
+  }
+
+  .sd-badge {
+    right: 2%;
+    width: 96px;
+    height: 96px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .sd-badge svg {
+    animation: none;
+  }
+}

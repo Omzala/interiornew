@@ -1,0 +1,140 @@
+/* Live 3D room (src/components/Room3D.jsx). Fills its positioned parent. */
+
+.r3d {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+  color: var(--ivory, #f4efe8);
+  font-family: var(--sans, 'Jost', 'Helvetica Neue', sans-serif);
+}
+
+.r3d-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  opacity: 0;
+  cursor: grab;
+  touch-action: pan-y;
+  user-select: none;
+  -webkit-user-select: none;
+  -webkit-tap-highlight-color: transparent;
+  transition: opacity 1.4s ease;
+}
+
+.r3d-canvas:active {
+  cursor: grabbing;
+}
+
+.r3d.is-ready .r3d-canvas {
+  opacity: 1;
+}
+
+/* quiet loading state until the first frame is drawn */
+.r3d-loading {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  pointer-events: none;
+  transition: opacity 0.6s ease, visibility 0s linear 0.6s;
+}
+
+.r3d.is-ready .r3d-loading {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.r3d-loading-text {
+  font-family: var(--serif, 'Cormorant Garamond', serif);
+  font-style: italic;
+  font-size: 22px;
+  letter-spacing: 0.02em;
+  color: #e9dfd0;
+  white-space: nowrap;
+}
+
+.r3d-loading-line {
+  display: block;
+  width: 120px;
+  height: 1px;
+  background: var(--bronze-soft, #c8a678);
+  transform-origin: left;
+  animation: r3d-sweep 1.6s ease-in-out infinite;
+}
+
+.r3d.is-ready .r3d-loading-line {
+  animation-play-state: paused;
+}
+
+@keyframes r3d-sweep {
+  0% {
+    transform: scaleX(0);
+    transform-origin: left;
+  }
+  50% {
+    transform: scaleX(1);
+    transform-origin: left;
+  }
+  50.1% {
+    transform: scaleX(1);
+    transform-origin: right;
+  }
+  100% {
+    transform: scaleX(0);
+    transform-origin: right;
+  }
+}
+
+/* photo fallback when WebGL is unavailable */
+.r3d-fallback {
+  position: absolute;
+  inset: 0;
+}
+
+.r3d-fallback .smart-img {
+  position: absolute;
+  inset: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+.r3d-fallback img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.r3d-note {
+  position: absolute;
+  left: 16px;
+  bottom: 16px;
+  max-width: calc(100% - 32px);
+  margin: 0;
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(21, 18, 15, 0.72);
+  font-size: 13px;
+  line-height: 1.4;
+  color: var(--ivory, #f4efe8);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .r3d-canvas,
+  .r3d-loading {
+    transition: none;
+  }
+
+  .r3d-loading-line {
+    animation: none;
+    transform: scaleX(0.6);
+    transform-origin: center;
+  }
+}

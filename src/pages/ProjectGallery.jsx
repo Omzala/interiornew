@@ -6,7 +6,8 @@ import RevealText from '../components/RevealText';
 import ParallaxImage from '../components/ParallaxImage';
 import SmartImage from '../components/SmartImage';
 import Lightbox from '../components/Lightbox';
-import { ArrowUpRight } from '../components/Icons';
+import PhotoDeck from '../components/PhotoDeck';
+import { ArrowRight, ArrowUpRight } from '../components/Icons';
 import { categories, getNextProject, getProject, normalizeImage } from '../data/projects';
 import { ease, pad } from '../lib/motion';
 
@@ -30,13 +31,13 @@ function Column({ children, progress, shift }) {
   );
 }
 
-function Photo({ image, index, order, hidden, aspect, onOpen, onAspect }) {
+function Photo({ image, index, order, hidden, linked, aspect, onOpen, onAspect }) {
   const delay = (order % 3) * 0.12;
   return (
     <motion.button
       className="photo"
       data-cursor="View"
-      data-photo-index={index}
+      data-photo-index={linked ? index : undefined}
       style={{ aspectRatio: aspect || 0.8, opacity: hidden ? 0 : 1 }}
       onClick={(e) => onOpen(index, e.currentTarget.getBoundingClientRect())}
       initial="hidden"
@@ -74,7 +75,7 @@ function Photo({ image, index, order, hidden, aspect, onOpen, onAspect }) {
   );
 }
 
-function Masonry({ images, openIndex, aspects, onOpen, onAspect }) {
+function Masonry({ images, openIndex, linked, aspects, onOpen, onAspect }) {
   const cols = useColumnCount();
   const ref = useRef(null);
   const { scrollYProgress } = useScroll({ target: ref, offset: ['start end', 'end start'] });
@@ -94,6 +95,7 @@ function Masonry({ images, openIndex, aspects, onOpen, onAspect }) {
               index={i}
               order={order + c}
               hidden={openIndex === i}
+              linked={linked}
               aspect={aspects[img.src] || img.width / img.height}
               onOpen={onOpen}
               onAspect={onAspect}
@@ -109,9 +111,12 @@ export default function ProjectGallery() {
   const { category, slug } = useParams();
   const project = getProject(category, slug);
   const [filter, setFilter] = useState('All');
+  // { index, rect, from: 'library' | 'deck' } while the viewer is open.
   const [lightbox, setLightbox] = useState(null);
   const [openIndex, setOpenIndex] = useState(null);
+  const [deckIndex, setDeckIndex] = useState(0);
   const [aspects, setAspects] = useState({});
+  const fromDeck = lightbox?.from === 'deck';
 
   const images = useMemo(() => (project ? project.images.map(normalizeImage) : []), [project]);
   const tags = useMemo(() => ['All', ...new Set(images.map((i) => i.tag).filter(Boolean))], [images]);
@@ -124,8 +129,24 @@ export default function ProjectGallery() {
 
   const onOpen = useCallback((index, rect) => {
     setOpenIndex(index);
-    setLightbox({ index, rect });
+    setLightbox({ index, rect, from: 'library' });
   }, []);
+
+  // The deck always shows every photo, whatever the library filter.
+  const onDeckOpen = useCallback((index, rect) => {
+    setOpenIndex(index);
+    setLightbox({ index, rect, from: 'deck' });
+  }, []);
+
+  // While the viewer was opened from the deck, the deck follows it so the
+  // photo can fly back to the front card on close.
+  const onViewerIndex = useCallback(
+    (index) => {
+      setOpenIndex(index);
+      if (fromDeck) setDeckIndex(index);
+    },
+    [fromDeck]
+  );
 
   const onClose = useCallback(() => {
     setLightbox(null);
@@ -187,20 +208,36 @@ export default function ProjectGallery() {
         <ParallaxImage src={project.cover} alt={project.title} width={2000} strength={10} eager delay={0.6} />
       </div>
 
-      <section className="section gallery-intro">
-        <div className="container gallery-intro-grid">
-          <div className="section-label">
-            <span>(i)</span> The project
+      <section className="section pd-intro" aria-label="The project">
+        <div className="container pd-intro-grid">
+          <div className="pd-intro-copy">
+            <div className="section-label">
+              <span>(i)</span> The project
+            </div>
+            <motion.p
+              className="pd-intro-desc"
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.4 }}
+              transition={{ duration: 1.1, ease: ease.out }}
+            >
+              {project.description}
+            </motion.p>
+            <Link to="/consultation" className="pd-intro-cta">
+              Plan a space like this
+              <ArrowRight size={16} />
+            </Link>
           </div>
-          <motion.p
-            className="gallery-desc"
-            initial={{ opacity: 0, y: 40 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.4 }}
-            transition={{ duration: 1.1, ease: ease.out }}
-          >
-            {project.description}
-          </motion.p>
+
+          <div className="pd-intro-deck">
+            <PhotoDeck
+              images={images}
+              index={deckIndex}
+              onIndexChange={setDeckIndex}
+              lifted={fromDeck ? openIndex : null}
+              onOpen={onDeckOpen}
+            />
+          </div>
         </div>
       </section>
 
@@ -238,7 +275,14 @@ export default function ProjectGallery() {
               initial={{ opacity: 1 }}
               exit={{ opacity: 0, y: 30, transition: { duration: 0.45, ease: ease.inOut } }}
             >
-              <Masonry images={visible} openIndex={openIndex} aspects={aspects} onOpen={onOpen} onAspect={onAspect} />
+              <Masonry
+                images={visible}
+                openIndex={fromDeck ? null : openIndex}
+                linked={!fromDeck}
+                aspects={aspects}
+                onOpen={onOpen}
+                onAspect={onAspect}
+              />
             </motion.div>
           </AnimatePresence>
         </div>
@@ -261,11 +305,11 @@ export default function ProjectGallery() {
 
       {lightbox && (
         <Lightbox
-          images={visible}
+          images={fromDeck ? images : visible}
           startIndex={lightbox.index}
           originRect={lightbox.rect}
           aspects={aspects}
-          onIndexChange={setOpenIndex}
+          onIndexChange={onViewerIndex}
           onClose={onClose}
         />
       )}
