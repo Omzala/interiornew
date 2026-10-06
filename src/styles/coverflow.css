@@ -110,7 +110,7 @@
   margin-top: 48px;
   perspective: 1800px;
   perspective-origin: 50% 38%;
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
   user-select: none;
   -webkit-user-select: none;
   -webkit-touch-callout: none;
@@ -167,6 +167,12 @@
   backface-visibility: hidden;
 }
 
+/* The card coming forward shows (and can take focus) at once; only cards
+   leaving the stage wait for the visibility fade. */
+.cf-card.is-active {
+  transition-property: transform, opacity, filter;
+}
+
 .cf-card .smart-img {
   position: absolute;
   inset: 0;
@@ -194,7 +200,7 @@
   right: 0;
   bottom: 0;
   padding: 80px 22px 22px;
-  background: linear-gradient(to top, rgba(21, 18, 15, 0.85), rgba(21, 18, 15, 0));
+  background: linear-gradient(to top, rgba(21, 18, 15, 0.88), rgba(21, 18, 15, 0.6) 55%, rgba(21, 18, 15, 0));
   color: var(--ivory);
   text-align: left;
   opacity: 0;
@@ -211,7 +217,7 @@
   font-size: 11px;
   letter-spacing: 0.26em;
   text-transform: uppercase;
-  color: #e6cda4;
+  color: var(--ivory);
 }
 
 .cf-cap-title {
@@ -492,6 +498,10 @@
   .cf-layer {
     transition: opacity 0.2s linear, visibility 0.2s !important;
     transition-delay: 0s !important;
+  }
+
+  .cf-card.is-active {
+    transition: opacity 0.2s linear !important;
   }
 
   .cf-card .smart-img img {

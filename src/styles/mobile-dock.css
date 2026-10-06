@@ -111,6 +111,11 @@
   html.has-mdock main ~ footer {
     padding-bottom: calc(var(--mdock-height) + var(--mdock-bottom) + 24px);
   }
+
+  /* Keyboard focus that scrolls into view stops above the dock, not under it. */
+  html.has-mdock {
+    scroll-padding-bottom: calc(var(--mdock-height) + var(--mdock-bottom) + 12px);
+  }
 }
 
 @media (max-width: 359px) {

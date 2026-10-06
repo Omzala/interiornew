@@ -3,6 +3,7 @@ import { Link } from 'react-router-dom';
 import { useInView } from 'framer-motion';
 import RevealText from '../components/RevealText';
 import SmartImage from '../components/SmartImage';
+import { useIntroDone } from '../lib/intro';
 import { ArrowLeft, ArrowRight, ArrowUpRight } from '../components/Icons';
 import { categories, projects, getProjectsByCategory } from '../data/projects';
 import { pad } from '../lib/motion';
@@ -71,6 +72,12 @@ export default function Portfolio() {
   const swallowUntil = useRef(0);
 
   const inView = useInView(stageRef, { once: true, amount: 0.3 });
+  // Covers start downloading once the opening loader has lifted and the
+  // section is approaching, so they don't compete with the hero's 3D room;
+  // until then each card shows its sand-coloured placeholder.
+  const introDone = useIntroDone();
+  const approaching = useInView(stageRef, { once: true, margin: '600px 0px' });
+  const near = introDone && approaching;
 
   const list = cat === 'all' ? projects : getProjectsByCategory(cat);
   const n = list.length;
@@ -262,7 +269,9 @@ export default function Portfolio() {
                     setActive(i);
                   }}
                 >
-                  <SmartImage src={p.cover} alt="" width={1000} eager={shown || (settled && warm.has(p.slug))} />
+                  {near && (
+                    <SmartImage src={p.cover} alt="" width={1000} eager={shown || (settled && warm.has(p.slug))} />
+                  )}
                   <span className="cf-cap" aria-hidden="true">
                     <span className="cf-cap-cat">{catTitle(p.category)}</span>
                     <span className="cf-cap-title">{p.title}</span>

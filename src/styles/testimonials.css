@@ -68,7 +68,7 @@
   min-height: 430px;
   margin: 96px auto 0;
   perspective: 1400px;
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
 }
 
 /*

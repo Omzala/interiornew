@@ -181,6 +181,11 @@
   line-height: 1;
 }
 
+/* Focus lands on the step heading after Back/Continue; no ring on a heading. */
+.cs-title:focus {
+  outline: none;
+}
+
 .cs-title em {
   font-style: italic;
   color: var(--cs-accent);

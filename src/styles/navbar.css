@@ -523,6 +523,28 @@
 
 /* Phone / tablet menu (Mobile-Menu.dc.html) ------------------------------ */
 @media (max-width: 979px) {
+  /* While the menu is open the bar is its header: an opaque espresso band
+     behind it keeps scrolled menu rows from showing (or being tapped)
+     under the logo and close button. */
+  .nvb::before {
+    content: '';
+    position: absolute;
+    z-index: -1;
+    top: calc(-10px - env(safe-area-inset-top, 0px));
+    bottom: -12px;
+    left: -50vw;
+    right: -50vw;
+    background: var(--espresso);
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.4s ease;
+  }
+
+  .nvb.is-open::before {
+    opacity: 1;
+    pointer-events: auto;
+  }
+
   .nvm {
     gap: 22px;
     padding-top: calc(96px + env(safe-area-inset-top, 0px));
@@ -662,6 +684,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .nvb,
+  .nvb::before,
   .nvb-links,
   .nvb-link,
   .nvb-cta,

@@ -28,7 +28,7 @@
   position: relative;
   height: calc(var(--pd-card-h) + 26px);
   perspective: 1200px;
-  touch-action: pan-y;
+  touch-action: pan-y pinch-zoom;
   -webkit-user-select: none;
   user-select: none;
 }
@@ -290,6 +290,12 @@
   scroll-padding-inline: 24px;
   -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 28px), transparent);
   mask-image: linear-gradient(90deg, transparent 0, #000 10px, #000 calc(100% - 28px), transparent);
+}
+
+/* lenis.css contains both axes on [data-lenis-prevent-horizontal]; let
+   vertical swipes over the strip keep scrolling the page. */
+.lenis .pd-thumbs[data-lenis-prevent-horizontal] {
+  overscroll-behavior-y: auto;
 }
 
 .pd-thumbs.is-scroll::-webkit-scrollbar {

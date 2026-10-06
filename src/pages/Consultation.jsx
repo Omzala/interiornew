@@ -41,19 +41,21 @@ export default function Consultation() {
   const [phone, setPhone] = useState('');
 
   const primaryRef = useRef(null);
+  const stageRef = useRef(null);
   const refocus = useRef(false);
 
   useEffect(() => {
     document.title = 'Book a consultation — Anvee Interiors';
   }, []);
 
-  // Back/Continue can unmount the focused button (first/last step); hand
-  // focus to the primary action so keyboard users don't land on <body>.
+  // After Back/Continue, move focus to the new step's heading so keyboard and
+  // screen-reader users continue from the top of that step (the button they
+  // pressed may also have unmounted on the first/last step).
   useEffect(() => {
     if (!refocus.current) return;
     refocus.current = false;
-    const active = document.activeElement;
-    if (!active || active === document.body) primaryRef.current?.focus({ preventScroll: true });
+    const heading = stageRef.current?.querySelector('.cs-face.is-active .cs-title');
+    (heading || primaryRef.current)?.focus({ preventScroll: true });
   }, [step]);
 
   const canGo = step === 0 ? Boolean(kind) : step === 1 ? spaces.length > 0 : true;
@@ -120,11 +122,11 @@ export default function Consultation() {
             <p className="cs-step-label" aria-live="polite">{labels[step]}</p>
           </div>
 
-          <div className="cs-stage">
+          <div className="cs-stage" ref={stageRef}>
             <div className="cs-cube" style={{ '--cs-step': step }}>
               {/* Step 1: type of space */}
               <section aria-label="Step 1, type of space" {...face(0)}>
-                <h2 className="cs-title">
+                <h2 className="cs-title" tabIndex={-1}>
                   What are we <em>designing</em>?
                 </h2>
                 <p className="cs-lede">Pick the closest fit. We will refine the details together.</p>
@@ -153,7 +155,7 @@ export default function Consultation() {
 
               {/* Step 2: rooms and size */}
               <section aria-label="Step 2, rooms and size" {...face(1)}>
-                <h2 className="cs-title">
+                <h2 className="cs-title" tabIndex={-1}>
                   Which <em>spaces</em>?
                 </h2>
                 <p className="cs-lede">Choose all that apply.</p>
@@ -194,7 +196,7 @@ export default function Consultation() {
 
               {/* Step 3: contact details */}
               <section aria-label="Step 3, contact details" {...face(2)}>
-                <h2 className="cs-title">
+                <h2 className="cs-title" tabIndex={-1}>
                   How do we <em>reach you</em>?
                 </h2>
                 <div className="cs-field-row">
