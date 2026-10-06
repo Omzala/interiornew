@@ -37,10 +37,10 @@ export default function Home() {
         <Hero />
         <Marquee items={['Residential', 'Commercial', 'Hospitality', 'Turnkey', 'Bespoke Furniture', 'Styling']} />
       </div>
-      <Studio />
       <Portfolio />
       <Services />
       <Process />
+      <Studio />
       <Testimonials />
       <Contact />
     </PageTransition>

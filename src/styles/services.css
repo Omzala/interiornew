@@ -1,0 +1,307 @@
+/* =====================================================================
+   Services: 3D tilt cards (home page, section#services)
+   Design source: Main.dc.html "services" section; phones follow the
+   accordion in Mobile.dc.html. Classes are prefixed `svc-` so legacy
+   index.css rules (.services, .service-row …) can't leak in.
+   ===================================================================== */
+
+.svc {
+  --svc-label: #7a5d34;
+  --svc-accent: #8a6a3c;
+  --svc-rule: rgba(28, 25, 21, 0.16);
+
+  position: relative;
+  background: var(--ivory-2);
+  color: var(--ink);
+  padding: clamp(80px, 10vw, 140px) 0;
+}
+
+/* ---- Heading ------------------------------------------------------- */
+.svc-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 28px;
+}
+
+.svc-heading {
+  flex: 1 1 560px;
+  min-width: 0;
+}
+
+.svc .section-label {
+  margin-bottom: 18px;
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.3em;
+  color: var(--svc-label);
+  gap: 0.6em;
+}
+
+.svc .section-label span {
+  font: inherit;
+  letter-spacing: inherit;
+  color: inherit;
+}
+
+.svc .svc-title {
+  font-size: clamp(44px, 5.6vw, 84px);
+  line-height: 0.98;
+  letter-spacing: -0.01em;
+}
+
+.svc .svc-title .is-italic {
+  color: var(--svc-accent);
+}
+
+.svc-intro {
+  flex: 0 1 380px;
+  font-size: 16px;
+  line-height: 1.75;
+  color: var(--ink-soft);
+}
+
+/* ---- Cards --------------------------------------------------------- */
+.svc-grid {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 18px;
+  margin: 56px 0 0;
+  padding: 0;
+}
+
+.svc-cell {
+  flex: 1 1 220px;
+  min-width: 0;
+  perspective: 1000px;
+}
+
+.svc-card {
+  position: relative;
+  height: 460px;
+  transform-style: preserve-3d;
+}
+
+.svc-card.is-tilt {
+  will-change: transform;
+}
+
+.svc-media {
+  position: absolute;
+  inset: 0;
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--ink);
+  box-shadow: 0 34px 60px -30px rgba(28, 25, 21, 0.6);
+  /* Keeps the rounded clip intact under 3D transforms in WebKit. */
+  -webkit-mask-image: -webkit-radial-gradient(white, black);
+}
+
+.svc-photo {
+  position: absolute;
+  inset: 0;
+}
+
+.svc-photo .smart-img {
+  background: var(--ink);
+}
+
+.svc-shade {
+  position: absolute;
+  inset: 0;
+  /* Design gradient, plus a light top vignette so the number reads on bright photos. */
+  background: linear-gradient(to bottom, rgba(21, 18, 15, 0.38) 0%, rgba(21, 18, 15, 0) 24%),
+    linear-gradient(to top, rgba(21, 18, 15, 0.9) 0%, rgba(21, 18, 15, 0.25) 55%, rgba(21, 18, 15, 0.1) 100%);
+  pointer-events: none;
+}
+
+.svc-glare {
+  position: absolute;
+  left: -50%;
+  top: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle at center, rgba(255, 240, 220, 0.6) 0%, rgba(255, 240, 220, 0) 30%);
+  mix-blend-mode: soft-light;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.svc-copy {
+  position: absolute;
+  inset: 0;
+  padding: 26px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  transform: translateZ(48px);
+  pointer-events: none;
+  color: var(--ivory);
+}
+
+.svc-num {
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 22px;
+  line-height: 1;
+  color: #e6cda4;
+}
+
+.svc-card-title {
+  font-family: var(--serif);
+  font-weight: 400;
+  font-size: 31px;
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.svc-card-text {
+  margin-top: 12px;
+  font-size: 14.5px;
+  line-height: 1.6;
+  color: #e6ddd0;
+}
+
+/* ---- Laptops / tablets: 3 + 2 instead of an orphaned fifth card ---- */
+@media (max-width: 1279px) {
+  .svc-cell {
+    flex-basis: calc((100% - 36px) / 3);
+  }
+
+  .svc-card {
+    height: 420px;
+  }
+}
+
+@media (max-width: 900px) {
+  .svc-card {
+    height: 380px;
+  }
+
+  .svc-copy {
+    padding: 22px;
+  }
+
+  .svc-card-title {
+    font-size: 28px;
+  }
+}
+
+/* ---- Phones (Mobile.dc.html): accordion ---------------------------- */
+.svc-acc {
+  list-style: none;
+  margin: 26px 0 0;
+  padding: 0;
+  border-top: 1px solid var(--svc-rule);
+}
+
+.svc-acc-item {
+  border-bottom: 1px solid var(--svc-rule);
+}
+
+.svc-acc-h {
+  font: inherit;
+  letter-spacing: 0;
+}
+
+.svc-acc-btn {
+  width: 100%;
+  min-height: 68px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 0;
+  border: 0;
+  background: transparent;
+  color: var(--ink);
+  text-align: left;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.svc-acc-btn:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+.svc-acc-num {
+  flex: 0 0 26px;
+  font-family: var(--serif);
+  font-style: italic;
+  font-size: 17px;
+  color: var(--svc-label);
+}
+
+.svc-acc-title {
+  flex: 1 1 auto;
+  min-width: 0;
+  font-family: var(--serif);
+  font-size: 27px;
+  line-height: 1.05;
+}
+
+.svc-acc-icon {
+  flex: 0 0 36px;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid rgba(28, 25, 21, 0.25);
+  display: grid;
+  place-items: center;
+  transition: transform 0.4s ease;
+}
+
+.svc-acc-btn[aria-expanded='true'] .svc-acc-icon {
+  transform: rotate(45deg);
+}
+
+.svc-acc-panel {
+  overflow: hidden;
+}
+
+.svc-acc-body {
+  padding: 0 0 20px;
+}
+
+.svc-acc-photo {
+  height: 190px;
+  border-radius: 14px;
+  overflow: hidden;
+}
+
+.svc-acc-text {
+  margin-top: 14px;
+  font-size: 15.5px;
+  line-height: 1.65;
+  color: var(--ink-soft);
+}
+
+@media (max-width: 700px) {
+  .svc {
+    padding: 56px 0;
+  }
+
+  .svc .section-label {
+    margin-bottom: 14px;
+    font-size: 11px;
+  }
+
+  .svc .svc-title {
+    font-size: clamp(38px, 11vw, 46px);
+    line-height: 1;
+  }
+
+  /* The phone design goes straight from the title to the list. */
+  .svc-intro {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .svc-acc-icon {
+    transition: none;
+  }
+}
