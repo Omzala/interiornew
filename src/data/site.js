@@ -77,20 +77,20 @@ export const testimonials = [
   {
     quote:
       'Anvee understood our family before they drew a single line. Our home is calm, beautiful and completely ours.',
-    author: 'Residential client',
-    role: 'The Ivory Residence',
+    author: 'Hemang & Monika Jani',
+    role: 'Vrund Palace · Residential',
   },
   {
     quote:
       'The office has changed how our team works. Clients walk in and immediately understand who we are.',
-    author: 'Commercial client',
-    role: 'Office interiors',
+    author: 'Mr. Manish Shah',
+    role: 'Managing Director, Kanan.co',
   },
   {
     quote:
       'Meticulous, patient and full of ideas. They delivered on time, and the detailing is exquisite.',
-    author: 'Apartment client',
-    role: 'Sage & Stone Apartment',
+    author: 'Jenish Shah',
+    role: 'Hiya Horizon · Apartment',
   },
 ];
 
